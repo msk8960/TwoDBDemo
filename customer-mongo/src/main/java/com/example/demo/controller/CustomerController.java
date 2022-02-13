@@ -26,23 +26,32 @@ public class CustomerController {
     @PostMapping("/create")
     public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
         try {
-            boolean accountExists = false;
-            try {
-                restTemplate.exchange(
-                        "http://account-sql/account/accounts/" + customer.getCustomerId(),
-                        HttpMethod.GET, null,
-                        new ParameterizedTypeReference<String>() {});
-            } catch (HttpClientErrorException ex) {
-                if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-                    accountExists = true;
+            boolean customerExists = customerRepo.findByCustomerId(
+                    customer.getCustomerId()).isPresent();
+
+            if(!customerExists) {
+                try {
+                    ResponseEntity response = restTemplate.exchange(
+                            "http://account-sql/account/accounts/" + customer.getCustomerId(),
+                            HttpMethod.GET, null,
+                            new ParameterizedTypeReference<String>() {
+                            });
+
+                    if (response.getStatusCode() == HttpStatus.OK) {
+                        customerExists = true;
+                    }
+                } catch (HttpClientErrorException ex) {
+                    if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        customerExists = false;
+                    }
                 }
             }
-            if(!accountExists)
+
+            if(!customerExists)
             {
-                Date currentDate = new Date();
                 Customer savedCustomer = customerRepo.save(new Customer(
                         customer.getCustomerId(), customer.getCustomerName(),
-                        currentDate, customer.isActive()));
+                        new Date(), customer.isActive()));
 
                 return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
             } else

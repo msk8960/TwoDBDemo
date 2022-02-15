@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Document(collection="customer")
@@ -13,6 +14,7 @@ public class Customer {
 
     @Id
     Integer customerId;
+    @NotBlank(message="name cannot be empty")
     String customerName;
     Date creationDate;
     boolean isActive;

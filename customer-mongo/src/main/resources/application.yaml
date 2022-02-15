@@ -7,3 +7,7 @@ spring:
     mongodb:
       database: customer_db
       port: 27017
+feign:
+  circuitbreaker:
+    enabled: true
+

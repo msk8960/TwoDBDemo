@@ -17,12 +17,15 @@ public class Customer {
     @NotBlank(message="name cannot be empty")
     String customerName;
     Date creationDate;
+    CustomerType customerType;
     boolean isActive;
 
-    public Customer(Integer customerId, String customerName, Date creationDate, boolean isActive) {
+    public Customer(Integer customerId, String customerName,
+                    Date creationDate, CustomerType customerType, boolean isActive) {
         this.customerId = customerId;
         this.customerName = customerName;
         this.creationDate = creationDate;
+        this.customerType = customerType;
         this.isActive = isActive;
     }
 

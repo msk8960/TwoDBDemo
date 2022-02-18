@@ -3,10 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.exception.CustomerAlreadyExistsException;
 import com.example.demo.exception.CustomerNotFoundException;
 import com.example.demo.feign.AccountFeign;
-import com.example.demo.model.Account;
-import com.example.demo.model.Customer;
-import com.example.demo.model.CustomerAccountResponse;
-import com.example.demo.model.CustomerType;
+import com.example.demo.model.*;
 import com.example.demo.repo.CustomerRepo;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
@@ -33,14 +30,14 @@ public class CustomerController {
     AccountFeign accountFeign;
 
     @PostMapping("/create")
-    public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
+    public ResponseEntity<CustomerAccountResponse> createCustomer(@Valid @RequestBody Customer customer) {
         try {
             log.info("adding customer");
 
             if (!customerRepo.findByCustomerId(customer.getCustomerId()).isPresent()) {
                 boolean accountExists = false;
                 try {
-                    log.info("calling account service");
+                    log.info("calling account service for searching account with id " + customer.getCustomerId());
                     ResponseEntity response = accountFeign.getAccountById(customer.getCustomerId());
 
                     if (response.getStatusCode() == HttpStatus.OK) {
@@ -57,12 +54,29 @@ public class CustomerController {
                 }
 
                 if(!accountExists) {
+                    CustomerAccountResponse customerAccountResponse = new CustomerAccountResponse();
+                    Date currentDate = new Date();
                     Customer savedCustomer = customerRepo.save(new Customer(
                             customer.getCustomerId(), customer.getCustomerName(),
-                            new Date(), CustomerType.INDIVIDUAL, customer.isActive()));
+                            currentDate, CustomerType.INDIVIDUAL, customer.isActive()));
+                    log.info("customer added to database");
+                    customerAccountResponse.setCustomer(savedCustomer);
 
-                    log.info("customer added to the database");
-                    return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
+                    try {
+                        log.info("calling account service for account creation");
+                        Account newAccount = new Account(customer.getCustomerId(),
+                                customer.getCustomerName()+"-account-cash", currentDate,
+                                AccountType.CASH, 5000.0);
+                        ResponseEntity response = accountFeign.createAccount(newAccount);
+                        log.info("an account for customer created in the database");
+                        customerAccountResponse.setAccount(newAccount);
+                    } catch (Exception e) {
+                        log.error("error creating account for customer " + customer.getCustomerId());
+                        log.error(e.getMessage());
+                        throw e;
+                    }
+                    log.info("customer and account added to the database");
+                    return new ResponseEntity<>(customerAccountResponse, HttpStatus.CREATED);
                 } else {
                     log.info("an account with given customer id already exists");
                     throw new CustomerAlreadyExistsException("an account with customer id already exists");

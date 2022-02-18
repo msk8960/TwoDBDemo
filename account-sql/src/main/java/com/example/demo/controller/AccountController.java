@@ -41,6 +41,9 @@ public class AccountController {
 
             log.info("account created");
             return new ResponseEntity<>(savedAccount, HttpStatus.CREATED);
+        } catch (CustomerNotActiveException e) {
+            log.error(e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -75,6 +78,10 @@ public class AccountController {
             Optional<Account> selectedAccount = accountRepo.findByAccountId(id);
             if (selectedAccount.isPresent())
             {
+                if(!selectedAccount.get().getIsCustomerActive()) {
+                    log.error("customer is inactive for the account");
+                    throw new CustomerNotActiveException("customer is inactive for the account");
+                }
                 log.info("account id " + id + " retrieved");
                 return new ResponseEntity<>(selectedAccount.get(), HttpStatus.OK);
             } else
@@ -82,6 +89,9 @@ public class AccountController {
                 log.info("account id " + id + " not found");
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+        } catch (CustomerNotActiveException e) {
+            log.error(e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

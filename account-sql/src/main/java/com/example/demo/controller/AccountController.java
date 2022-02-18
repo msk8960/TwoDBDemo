@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.exception.CustomerNotActiveException;
 import com.example.demo.model.Account;
 import com.example.demo.repo.AccountRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +28,16 @@ public class AccountController {
         try {
             log.info("creating account");
 
+            if(!account.getIsCustomerActive())
+            {
+                log.error("customer not active for the account");
+                throw new CustomerNotActiveException("customer not active for the account");
+            }
+
             Account savedAccount = accountRepo.save(new Account(
                     account.getAccountId(), account.getAccountName(),
-                    new Date(), account.getAccountType(), account.getAccountBalance()));
+                    new Date(), account.getAccountType(), account.getIsCustomerActive(),
+                    account.getAccountBalance()));
 
             log.info("account created");
             return new ResponseEntity<>(savedAccount, HttpStatus.CREATED);

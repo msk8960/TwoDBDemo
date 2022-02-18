@@ -65,8 +65,8 @@ public class CustomerController {
                     try {
                         log.info("calling account service for account creation");
                         Account newAccount = new Account(customer.getCustomerId(),
-                                customer.getCustomerName()+"-account-cash", currentDate,
-                                AccountType.CASH, 5000.0);
+                                customer.getCustomerName() + "-account-cash", currentDate,
+                                AccountType.CASH, Boolean.TRUE, 5000.0);
                         ResponseEntity response = accountFeign.createAccount(newAccount);
                         log.info("an account for customer created in the database");
                         customerAccountResponse.setAccount(newAccount);

@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.exception.CustomerAlreadyExistsException;
+import com.example.demo.exception.CustomerNotActiveException;
 import com.example.demo.exception.CustomerNotFoundException;
 import com.example.demo.feign.AccountFeign;
 import com.example.demo.model.*;
@@ -13,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequestMapping("/customer")
@@ -35,57 +33,44 @@ public class CustomerController {
             log.info("adding customer");
 
             if (!customerRepo.findByCustomerId(customer.getCustomerId()).isPresent()) {
-                boolean accountExists = false;
+
+                if(!customer.isActive())
+                {
+                    log.error("cannot create customer that is not active");
+                    throw new CustomerNotActiveException("cannot create customer that is not active");
+                }
+                CustomerAccountResponse customerAccountResponse = new CustomerAccountResponse();
+                Date currentDate = new Date();
+                Customer savedCustomer = customerRepo.save(new Customer(
+                        customer.getCustomerId(), customer.getCustomerName(),
+                        currentDate, CustomerType.INDIVIDUAL, customer.isActive()));
+                log.info("customer added to database");
+                customerAccountResponse.setCustomer(savedCustomer);
+
                 try {
-                    log.info("calling account service for searching account with id " + customer.getCustomerId());
-                    ResponseEntity response = accountFeign.getAccountById(customer.getCustomerId());
+                    log.info("calling account service for account creation");
+                    Account newAccount = accountFeign.createAccount(
+                            new Account(customer.getCustomerId(),
+                                    customer.getCustomerName() + "-account-cash",
+                                    currentDate, AccountType.CASH, Boolean.TRUE, 5000.0)).getBody();
 
-                    if (response.getStatusCode() == HttpStatus.OK) {
-                        log.info("account service found an account with id - " + customer.getCustomerId());
-                        accountExists = true;
-                    }
-                } catch (FeignException ex) {
-
-                    log.error(ex.getMessage());
-                    if (ex.status() == HttpStatus.NOT_FOUND.value()) {
-                        log.info("account service returned account not found");
-                        accountExists = false;
-                    }
+                    log.info("a cash account created for customer in the database");
+                    customerAccountResponse.setAccounts(Arrays.asList(newAccount));
+                } catch (Exception e) {
+                    log.error("error creating account for customer " + customer.getCustomerId());
+                    log.error(e.getMessage());
+                    throw e;
                 }
-
-                if(!accountExists) {
-                    CustomerAccountResponse customerAccountResponse = new CustomerAccountResponse();
-                    Date currentDate = new Date();
-                    Customer savedCustomer = customerRepo.save(new Customer(
-                            customer.getCustomerId(), customer.getCustomerName(),
-                            currentDate, CustomerType.INDIVIDUAL, customer.isActive()));
-                    log.info("customer added to database");
-                    customerAccountResponse.setCustomer(savedCustomer);
-
-                    try {
-                        log.info("calling account service for account creation");
-                        Account newAccount = new Account(customer.getCustomerId(),
-                                customer.getCustomerName() + "-account-cash", currentDate,
-                                AccountType.CASH, Boolean.TRUE, 5000.0);
-                        ResponseEntity response = accountFeign.createAccount(newAccount);
-                        log.info("an account for customer created in the database");
-                        customerAccountResponse.setAccount(newAccount);
-                    } catch (Exception e) {
-                        log.error("error creating account for customer " + customer.getCustomerId());
-                        log.error(e.getMessage());
-                        throw e;
-                    }
-                    log.info("customer and account added to the database");
-                    return new ResponseEntity<>(customerAccountResponse, HttpStatus.CREATED);
-                } else {
-                    log.info("an account with given customer id already exists");
-                    throw new CustomerAlreadyExistsException("an account with customer id already exists");
-                }
+                log.info("customer and account added to the database");
+                return new ResponseEntity<>(customerAccountResponse, HttpStatus.CREATED);
             } else {
                 log.info("customer already exists");
                 throw new CustomerAlreadyExistsException("customer already exists with given customer id");
             }
         } catch (CustomerAlreadyExistsException e) {
+            log.error(e.getMessage());
+            throw e;
+        } catch (CustomerNotActiveException e) {
             log.error(e.getMessage());
             throw e;
         } catch (Exception e) {
@@ -122,8 +107,9 @@ public class CustomerController {
 
             CustomerAccountResponse car = new CustomerAccountResponse();
             try {
-                ResponseEntity<Account> accountResponse = accountFeign.getAccountById(id);
-                car.setAccount(accountResponse.getBody());
+                ResponseEntity<List<Account>> accountResponse = accountFeign.getAccountsById(id);
+                List<Account> retrievedAccounts = accountResponse.getBody();
+                car.setAccounts(retrievedAccounts);
 
                 if (selectedCustomer.isPresent()) {
                     car.setCustomer(selectedCustomer.get());
@@ -135,14 +121,12 @@ public class CustomerController {
                 log.info("customer id " + id + " retrieved");
                 return new ResponseEntity<>(car, HttpStatus.OK);
             } catch (FeignException ex) {
-
                 log.error(ex.getMessage());
                 if (ex.status() == HttpStatus.NOT_FOUND.value()) {
                     log.info("account service returned account not found");
                     throw new CustomerNotFoundException("account not found for the customer");
-                } else {
-                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
+                throw ex;
             }
         } catch (CustomerNotFoundException e) {
             log.error(e.getMessage());

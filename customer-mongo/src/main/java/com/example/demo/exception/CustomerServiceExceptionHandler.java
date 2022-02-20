@@ -35,4 +35,15 @@ public class CustomerServiceExceptionHandler extends ResponseEntityExceptionHand
         apiError.setTimestamp(LocalDateTime.now());
         return new ResponseEntity<>(apiError, HttpStatus.ALREADY_REPORTED);
     }
+
+    @ExceptionHandler({CustomerNotActiveException.class})
+    ResponseEntity customerNotActiveHandler(Exception exception, ServletWebRequest request) {
+        ApiError apiError = new ApiError();
+        apiError.setStatus(HttpStatus.EXPECTATION_FAILED);
+        apiError.setErrors(Arrays.asList(exception.getMessage()));
+        apiError.setMessage(exception.getMessage());
+        apiError.setPath(request.getDescription(false));
+        apiError.setTimestamp(LocalDateTime.now());
+        return new ResponseEntity<>(apiError, HttpStatus.EXPECTATION_FAILED);
+    }
 }

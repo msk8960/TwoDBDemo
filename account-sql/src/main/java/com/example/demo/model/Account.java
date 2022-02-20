@@ -13,11 +13,15 @@ import java.util.Date;
 @Data
 public class Account {
 
-    @Id
+    @NotNull(message = "account id cannot be null")
     private Integer accountId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer accountNumber;
     @NotBlank(message="name cannot be empty")
     private String accountName;
     private Date creationDate;
+    @NotNull(message = "account type cannot be null")
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
     @NotNull(message = "customer active status should be known")

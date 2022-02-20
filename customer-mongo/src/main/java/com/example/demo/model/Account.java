@@ -8,6 +8,7 @@ import java.util.Date;
 public class Account {
 
     private Integer accountId;
+    private Integer accountNumber;
     private String accountName;
     private Date creationDate;
     private AccountType accountType;

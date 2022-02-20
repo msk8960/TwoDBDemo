@@ -24,4 +24,15 @@ public class AccountServiceExceptionHandler extends ResponseEntityExceptionHandl
         apiError.setTimestamp(LocalDateTime.now());
         return new ResponseEntity<ApiError>(apiError, HttpStatus.EXPECTATION_FAILED);
     }
+
+    @ExceptionHandler({AccountNotFoundException.class})
+    ResponseEntity accountNotFoundHandler(Exception exception, ServletWebRequest request) {
+        ApiError apiError = new ApiError();
+        apiError.setStatus(HttpStatus.NOT_FOUND);
+        apiError.setErrors(Arrays.asList(exception.getMessage()));
+        apiError.setMessage(exception.getMessage());
+        apiError.setPath(request.getDescription(false));
+        apiError.setTimestamp(LocalDateTime.now());
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+    }
 }

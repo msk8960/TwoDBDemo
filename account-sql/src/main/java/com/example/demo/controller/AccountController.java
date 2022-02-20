@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.exception.AccountNotFoundException;
 import com.example.demo.exception.CustomerNotActiveException;
 import com.example.demo.model.Account;
 import com.example.demo.repo.AccountRepo;
@@ -72,24 +73,19 @@ public class AccountController {
     }
 
     @GetMapping("/accounts/{id}")
-    public ResponseEntity<Account> getAccountById(@PathVariable("id") Integer id) {
+    public ResponseEntity<List<Account>> getAccountsById(@PathVariable("id") Integer id) {
         try {
-            log.info("retrieving account id - " + id);
-            Optional<Account> selectedAccount = accountRepo.findByAccountId(id);
-            if (selectedAccount.isPresent())
+            log.info("retrieving accounts by id - " + id);
+            List<Account> allAccounts = accountRepo.findAllByAccountId(id);
+
+            if(allAccounts.isEmpty())
             {
-                if(!selectedAccount.get().getIsCustomerActive()) {
-                    log.error("customer is inactive for the account");
-                    throw new CustomerNotActiveException("customer is inactive for the account");
-                }
-                log.info("account id " + id + " retrieved");
-                return new ResponseEntity<>(selectedAccount.get(), HttpStatus.OK);
-            } else
-            {
-                log.info("account id " + id + " not found");
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                log.error("no account found for id - " + id);
+                throw new AccountNotFoundException("no account found for id - " + id);
             }
-        } catch (CustomerNotActiveException e) {
+            log.info("accounts retrieved for id - " + id);
+            return new ResponseEntity<>(allAccounts, HttpStatus.OK);
+        } catch (AccountNotFoundException e) {
             log.error(e.getMessage());
             throw e;
         } catch (Exception e) {

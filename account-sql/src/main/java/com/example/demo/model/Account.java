@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
+@NoArgsConstructor
 @Entity
 @Table(name="account")
 @Data
@@ -15,17 +17,23 @@ public class Account {
 
     @NotNull(message = "account id cannot be null")
     private Integer accountId;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer accountNumber;
-    @NotBlank(message="name cannot be empty")
+
+    @NotBlank(message="account name cannot be empty")
     private String accountName;
+
     private Date creationDate;
+
     @NotNull(message = "account type cannot be null")
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
+
     @NotNull(message = "customer active status should be known")
     private Boolean isCustomerActive;
+
     @Min(2000)
     private Double accountBalance;
 
@@ -38,10 +46,4 @@ public class Account {
         this.isCustomerActive = isCustomerActive;
         this.accountBalance = accountBalance;
     }
-
-    public Account()
-    {
-
-    }
-
 }

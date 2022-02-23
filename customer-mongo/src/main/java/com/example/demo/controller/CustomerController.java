@@ -67,15 +67,12 @@ public class CustomerController {
                 log.info("customer already exists");
                 throw new CustomerAlreadyExistsException("customer already exists with given customer id");
             }
-        } catch (CustomerAlreadyExistsException e) {
-            log.error(e.getMessage());
-            throw e;
-        } catch (CustomerNotActiveException e) {
+        } catch (CustomerAlreadyExistsException | CustomerNotActiveException e) {
             log.error(e.getMessage());
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -95,7 +92,7 @@ public class CustomerController {
             return new ResponseEntity<>(customers, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -133,7 +130,7 @@ public class CustomerController {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

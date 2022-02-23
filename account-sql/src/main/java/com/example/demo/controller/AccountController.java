@@ -14,7 +14,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequestMapping("/account")
@@ -35,10 +34,8 @@ public class AccountController {
                 throw new CustomerNotActiveException("customer not active for the account");
             }
 
-            Account savedAccount = accountRepo.save(new Account(
-                    account.getAccountId(), account.getAccountName(),
-                    new Date(), account.getAccountType(), account.getIsCustomerActive(),
-                    account.getAccountBalance()));
+            account.setCreationDate(new Date());
+            Account savedAccount = accountRepo.save(account);
 
             log.info("account created");
             return new ResponseEntity<>(savedAccount, HttpStatus.CREATED);
@@ -47,7 +44,7 @@ public class AccountController {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -68,7 +65,7 @@ public class AccountController {
             return new ResponseEntity<>(accounts, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -90,7 +87,7 @@ public class AccountController {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

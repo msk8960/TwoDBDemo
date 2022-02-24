@@ -36,12 +36,14 @@ public class CustomerServiceImpl implements ICustomerService {
                     log.error("cannot create customer that is not active");
                     throw new CustomerNotActiveException("cannot create customer that is not active");
                 }
+
                 CustomerAccountResponse customerAccountResponse = new CustomerAccountResponse();
-                Customer savedCustomer = customerRepo.save(new Customer(
-                        customer.getCustomerId(), customer.getCustomerName(),
-                        new Date(), CustomerType.INDIVIDUAL, customer.isActive()));
+                customer.setCreationDate(new Date());
+                customer.setCustomerType(CustomerType.INDIVIDUAL);
+                Customer savedCustomer = customerRepo.save(customer);
                 log.info("customer added to database");
-                customerAccountResponse.setCustomer(savedCustomer);
+
+                customerAccountResponse.setCustomer(new CustomerDTO(savedCustomer));
 
                 customerAccountResponse.setAccounts(Arrays.asList(createAccountForCustomer(customer)));
 
@@ -61,11 +63,13 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
-    public ResponseEntity<List<Customer>> getAllCustomers() {
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
         try {
             log.info("retrieving list of customers");
-            List<Customer> customers = new ArrayList<>();
-            customerRepo.findAll().forEach(customers::add);
+            List<CustomerDTO> customers = new ArrayList<>();
+            for (Customer cus : customerRepo.findAll()) {
+                customers.add(new CustomerDTO(cus));
+            }
 
             if (customers.isEmpty()) {
                 log.info("list of customers is empty");
@@ -89,7 +93,7 @@ public class CustomerServiceImpl implements ICustomerService {
             CustomerAccountResponse car = new CustomerAccountResponse();
 
             if (selectedCustomer.isPresent()) {
-                car.setCustomer(selectedCustomer.get());
+                car.setCustomer(new CustomerDTO(selectedCustomer.get()));
             } else {
                 log.error("customer not found for id " + id);
                 throw new CustomerNotFoundException("customer not found for the id " + id);
@@ -108,11 +112,11 @@ public class CustomerServiceImpl implements ICustomerService {
         }
     }
 
-    private Account createAccountForCustomer(Customer customer) {
+    private AccountDTO createAccountForCustomer(Customer customer) {
         try {
             log.info("calling account service for account creation");
-            Account newAccount = accountFeign.createAccount(
-                    new Account(customer.getCustomerId(),
+            AccountDTO newAccount = accountFeign.createAccount(
+                    new AccountDTO(customer.getCustomerId(),
                             customer.getCustomerName() + "-account-cash",
                             new Date(), AccountType.CASH, Boolean.TRUE, 5000.0)).getBody();
 
@@ -125,7 +129,7 @@ public class CustomerServiceImpl implements ICustomerService {
         }
     }
 
-    private List<Account> getAccountsByCustomerId(Integer id) {
+    private List<AccountDTO> getAccountsByCustomerId(Integer id) {
         try {
             log.info("retrieving accounts for customer with customer id - " + id);
             return accountFeign.getAccountsById(id).getBody();

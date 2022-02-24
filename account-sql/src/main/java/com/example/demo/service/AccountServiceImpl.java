@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.exception.AccountNotFoundException;
 import com.example.demo.exception.CustomerNotActiveException;
 import com.example.demo.model.Account;
+import com.example.demo.model.AccountDTO;
 import com.example.demo.repo.AccountRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +23,11 @@ public class AccountServiceImpl implements IAccountService {
     AccountRepo accountRepo;
 
     @Override
-    public ResponseEntity<Account> createAccount(Account account) {
+    public ResponseEntity<AccountDTO> createAccount(Account account) {
         try {
             log.info("creating account");
 
-            if(!account.getIsCustomerActive())
-            {
+            if (!account.getIsCustomerActive()) {
                 log.error("customer not active for the account");
                 throw new CustomerNotActiveException("customer not active for the account");
             }
@@ -36,7 +36,7 @@ public class AccountServiceImpl implements IAccountService {
             Account savedAccount = accountRepo.save(account);
 
             log.info("account created");
-            return new ResponseEntity<>(savedAccount, HttpStatus.CREATED);
+            return new ResponseEntity<>(new AccountDTO(savedAccount), HttpStatus.CREATED);
         } catch (CustomerNotActiveException e) {
             log.error(e.getMessage());
             throw e;
@@ -47,20 +47,21 @@ public class AccountServiceImpl implements IAccountService {
     }
 
     @Override
-    public ResponseEntity<List<Account>> getAllAccounts() {
+    public ResponseEntity<List<AccountDTO>> getAllAccounts() {
         try {
             log.info("retrieving list of accounts");
-            List<Account> accounts = new ArrayList<>();
-            accountRepo.findAll().forEach(accounts::add);
+            List<AccountDTO> accountDTOs = new ArrayList<>();
+            for (Account acc : accountRepo.findAll()) {
+                accountDTOs.add(new AccountDTO(acc));
+            }
 
-            if (accounts.isEmpty()) {
-
+            if (accountDTOs.isEmpty()) {
                 log.info("list of accounts is empty");
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
             }
 
             log.info("list of accounts retrieved");
-            return new ResponseEntity<>(accounts, HttpStatus.OK);
+            return new ResponseEntity<>(accountDTOs, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -68,18 +69,20 @@ public class AccountServiceImpl implements IAccountService {
     }
 
     @Override
-    public ResponseEntity<List<Account>> getAccountsById(Integer id) {
+    public ResponseEntity<List<AccountDTO>> getAccountsById(Integer id) {
         try {
             log.info("retrieving accounts by id - " + id);
-            List<Account> allAccounts = accountRepo.findAllByAccountId(id);
+            List<AccountDTO> allAccountDTOs = new ArrayList<>();
+            for (Account acc : accountRepo.findAllByAccountId(id)) {
+                allAccountDTOs.add(new AccountDTO(acc));
+            }
 
-            if(allAccounts.isEmpty())
-            {
+            if (allAccountDTOs.isEmpty()) {
                 log.error("no account found for id - " + id);
                 throw new AccountNotFoundException("no account found for id - " + id);
             }
             log.info("accounts retrieved for id - " + id);
-            return new ResponseEntity<>(allAccounts, HttpStatus.OK);
+            return new ResponseEntity<>(allAccountDTOs, HttpStatus.OK);
         } catch (AccountNotFoundException e) {
             log.error(e.getMessage());
             throw e;

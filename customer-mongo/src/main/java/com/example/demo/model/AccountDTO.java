@@ -1,11 +1,13 @@
 package com.example.demo.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@NoArgsConstructor
 @Data
-public class Account {
+public class AccountDTO {
 
     private Integer accountId;
     private Integer accountNumber;
@@ -15,8 +17,8 @@ public class Account {
     private Boolean isCustomerActive;
     private Double accountBalance;
 
-    public Account(Integer accountId, String accountName, Date creationDate,
-                   AccountType accountType, Boolean isCustomerActive, Double accountBalance) {
+    public AccountDTO(Integer accountId, String accountName, Date creationDate,
+                      AccountType accountType, Boolean isCustomerActive, Double accountBalance) {
         this.accountId = accountId;
         this.accountName = accountName;
         this.creationDate = creationDate;
@@ -24,10 +26,4 @@ public class Account {
         this.isCustomerActive = isCustomerActive;
         this.accountBalance = accountBalance;
     }
-
-    public Account()
-    {
-
-    }
-
 }

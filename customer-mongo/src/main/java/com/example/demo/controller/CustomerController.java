@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Customer;
 import com.example.demo.model.CustomerAccountResponse;
+import com.example.demo.model.CustomerDTO;
 import com.example.demo.service.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,12 @@ public class CustomerController {
     ICustomerService customerService;
 
     @PostMapping("/create")
-    public ResponseEntity<CustomerAccountResponse> createCustomer(@Valid @RequestBody Customer customer) {
-        return customerService.createCustomer(customer);
+    public ResponseEntity<CustomerAccountResponse> createCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
+        return customerService.createCustomer(new Customer(customerDTO));
     }
 
     @GetMapping("/customers")
-    public ResponseEntity<List<Customer>> getAllCustomers() {
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
         return customerService.getAllCustomers();
     }
 

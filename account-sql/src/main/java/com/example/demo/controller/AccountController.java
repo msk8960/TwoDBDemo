@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Account;
+import com.example.demo.model.AccountDTO;
 import com.example.demo.service.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +18,17 @@ public class AccountController {
     IAccountService accountService;
 
     @PostMapping("/create")
-    public ResponseEntity<Account> createAccount(@Valid @RequestBody Account account) {
-        return accountService.createAccount(account);
+    public ResponseEntity<AccountDTO> createAccount(@Valid @RequestBody AccountDTO accountDTO) {
+        return accountService.createAccount(new Account(accountDTO));
     }
 
     @GetMapping("/accounts")
-    public ResponseEntity<List<Account>> getAllAccounts() {
+    public ResponseEntity<List<AccountDTO>> getAllAccounts() {
         return accountService.getAllAccounts();
     }
 
     @GetMapping("/accounts/{id}")
-    public ResponseEntity<List<Account>> getAccountsById(@PathVariable("id") Integer id) {
+    public ResponseEntity<List<AccountDTO>> getAccountsById(@PathVariable("id") Integer id) {
         return accountService.getAccountsById(id);
     }
 }

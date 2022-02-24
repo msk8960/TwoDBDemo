@@ -10,4 +10,10 @@ spring:
 feign:
   circuitbreaker:
     enabled: true
-
+  client:
+    config:
+      default:
+        error-decoder: com.example.demo.config.FeignErrorDecoder
+        retryer: com.example.demo.config.CustomerFeignClientRetryer
+        connectTimeout: 60000
+        readTimeout: 60000

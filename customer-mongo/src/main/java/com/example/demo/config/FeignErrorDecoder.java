@@ -3,12 +3,14 @@ package com.example.demo.config;
 import feign.Response;
 import feign.RetryableException;
 import feign.codec.ErrorDecoder;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-@Slf4j
 public class FeignErrorDecoder implements ErrorDecoder {
+
+    private static Logger log = LoggerFactory.getLogger(FeignErrorDecoder.class);
 
     private final ErrorDecoder defaultErrorDecoder = new Default();
 

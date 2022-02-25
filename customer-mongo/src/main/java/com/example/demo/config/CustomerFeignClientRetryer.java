@@ -3,10 +3,13 @@ package com.example.demo.config;
 import feign.RetryableException;
 import feign.Retryer;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class CustomerFeignClientRetryer implements Retryer {
+
+    private static Logger log = LoggerFactory.getLogger(CustomerFeignClientRetryer.class);
+
     private long retryInterval;
 
     private int retryMaxAttempt;
@@ -33,9 +36,9 @@ public class CustomerFeignClientRetryer implements Retryer {
             throw e;
         }
         try {
-            log.info("waiting for: " + System.currentTimeMillis());
+            log.info("waiting for: {}", System.currentTimeMillis());
             Thread.sleep(retryInterval);
-            log.info("waiting period over: " + System.currentTimeMillis());
+            log.info("waiting period over: {}", System.currentTimeMillis());
         } catch (InterruptedException ignored) {
             Thread.sleep(retryInterval);
             Thread.currentThread().interrupt();

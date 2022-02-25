@@ -5,7 +5,8 @@ import com.example.demo.exception.CustomerNotActiveException;
 import com.example.demo.model.Account;
 import com.example.demo.model.AccountDTO;
 import com.example.demo.repo.AccountRepo;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Slf4j
 @Service
 public class AccountServiceImpl implements IAccountService {
+
+    private static Logger log = LoggerFactory.getLogger(AccountServiceImpl.class);
 
     @Autowired
     AccountRepo accountRepo;
@@ -71,17 +73,17 @@ public class AccountServiceImpl implements IAccountService {
     @Override
     public ResponseEntity<List<AccountDTO>> getAccountsById(Integer id) {
         try {
-            log.info("retrieving accounts by id - " + id);
+            log.info("retrieving accounts by id - {}", id);
             List<AccountDTO> allAccountDTOs = new ArrayList<>();
             for (Account acc : accountRepo.findAllByAccountId(id)) {
                 allAccountDTOs.add(new AccountDTO(acc));
             }
 
             if (allAccountDTOs.isEmpty()) {
-                log.error("no account found for id - " + id);
+                log.error("no account found for id - {}", id);
                 throw new AccountNotFoundException("no account found for id - " + id);
             }
-            log.info("accounts retrieved for id - " + id);
+            log.info("accounts retrieved for id - {}", id);
             return new ResponseEntity<>(allAccountDTOs, HttpStatus.OK);
         } catch (AccountNotFoundException e) {
             log.error(e.getMessage());

@@ -17,3 +17,6 @@ feign:
         retryer: com.example.demo.config.CustomerFeignClientRetryer
         connectTimeout: 60000
         readTimeout: 60000
+logging:
+  file:
+    name: ./src/logs/customer-service.log

@@ -7,7 +7,8 @@ import com.example.demo.feign.AccountFeign;
 import com.example.demo.model.*;
 import com.example.demo.repo.CustomerRepo;
 import feign.FeignException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-@Slf4j
 @Service
 public class CustomerServiceImpl implements ICustomerService {
+
+    private static Logger log = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     @Autowired
     CustomerRepo customerRepo;
@@ -54,7 +56,7 @@ public class CustomerServiceImpl implements ICustomerService {
                 throw new CustomerAlreadyExistsException("customer already exists with given customer id");
             }
         } catch (CustomerAlreadyExistsException | CustomerNotActiveException e) {
-            log.error(e.getMessage());
+            log.error("error creating customer", e);
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -79,7 +81,7 @@ public class CustomerServiceImpl implements ICustomerService {
             log.info("list of customers retrieved");
             return new ResponseEntity<>(customers, HttpStatus.OK);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("error retrieving list of customers", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -87,7 +89,7 @@ public class CustomerServiceImpl implements ICustomerService {
     @Override
     public ResponseEntity<CustomerAccountResponse> getCustomerById(Integer id) {
         try {
-            log.info("retrieving customer id - " + id);
+            log.info("retrieving customer id - {}", id);
             Optional<Customer> selectedCustomer = customerRepo.findByCustomerId(id);
 
             CustomerAccountResponse car = new CustomerAccountResponse();
@@ -95,16 +97,16 @@ public class CustomerServiceImpl implements ICustomerService {
             if (selectedCustomer.isPresent()) {
                 car.setCustomer(new CustomerDTO(selectedCustomer.get()));
             } else {
-                log.error("customer not found for id " + id);
-                throw new CustomerNotFoundException("customer not found for the id " + id);
+                log.error("customer not found for id - {}", id);
+                throw new CustomerNotFoundException("customer not found for the id - " + id);
             }
 
             car.setAccounts(getAccountsByCustomerId(id));
 
-            log.info("customer id " + id + " retrieved");
+            log.info("customer id {} retrieved", id);
             return new ResponseEntity<>(car, HttpStatus.OK);
         } catch (CustomerNotFoundException e) {
-            log.error(e.getMessage());
+            log.error("error retrieving customer", e);
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -123,7 +125,7 @@ public class CustomerServiceImpl implements ICustomerService {
             log.info("a cash account created for customer in the database");
             return newAccount;
         } catch (Exception e) {
-            log.error("error creating account for customer " + customer.getCustomerId());
+            log.error("error creating account for customer {} ", customer.getCustomerId());
             log.error(e.getMessage());
             throw e;
         }
@@ -131,10 +133,10 @@ public class CustomerServiceImpl implements ICustomerService {
 
     private List<AccountDTO> getAccountsByCustomerId(Integer id) {
         try {
-            log.info("retrieving accounts for customer with customer id - " + id);
+            log.info("retrieving accounts for customer with customer id - {}", id);
             return accountFeign.getAccountsById(id).getBody();
         } catch (FeignException ex) {
-            log.error(ex.getMessage());
+            log.error("error retrieving account by customer id.", ex);
             if (ex.status() == HttpStatus.NOT_FOUND.value()) {
                 log.info("account service returned account not found");
                 throw new CustomerNotFoundException("account not found for the customer");

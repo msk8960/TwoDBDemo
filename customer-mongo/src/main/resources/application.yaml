@@ -20,3 +20,8 @@ feign:
 logging:
   file:
     name: ./src/logs/customer-service.log
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

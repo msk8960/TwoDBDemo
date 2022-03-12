@@ -11,6 +11,8 @@ public class RouteConfig {
     public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder) {
 
         return routeLocatorBuilder.routes()
+                .route("jwt-demo", rt -> rt.path("/authenticate")
+                        .uri("http://localhost:8090/"))
                 .route("customer", rt -> rt.path("/customer/**")
                         .uri("http://localhost:8060/"))
                 .route("account-sql", rt -> rt.path("/account/**")

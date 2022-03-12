@@ -17,3 +17,5 @@ spring:
           enabled: true
 server:
   port: 8050
+jwt:
+  secret: 394ujew2398

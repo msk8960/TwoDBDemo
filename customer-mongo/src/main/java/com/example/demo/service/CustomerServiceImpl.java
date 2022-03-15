@@ -10,6 +10,7 @@ import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,10 @@ public class CustomerServiceImpl implements ICustomerService {
     private static Logger log = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     @Autowired
-    CustomerRepo customerRepo;
+    private CustomerRepo customerRepo;
 
     @Autowired
-    AccountFeign accountFeign;
+    private AccountFeign accountFeign;
 
     @Override
     public ResponseEntity<CustomerAccountResponse> createCustomer(Customer customer) {
@@ -69,7 +70,7 @@ public class CustomerServiceImpl implements ICustomerService {
         try {
             log.info("retrieving list of customers");
             List<CustomerDTO> customers = new ArrayList<>();
-            for (Customer cus : customerRepo.findAll()) {
+            for (Customer cus : customerRepo.findAll(Sort.by("customerId"))) {
                 customers.add(new CustomerDTO(cus));
             }
 

@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface AccountRepo extends JpaRepository<Account, Integer> {
 
-    List<Account> findAllByAccountId(Integer integer);
+    public List<Account> findAllByAccountIdOrderByAccountNumberAsc(Integer integer);
 
-    void deleteAllByAccountId(Integer integer);
+    public void deleteByAccountId(Integer integer);
 
 }

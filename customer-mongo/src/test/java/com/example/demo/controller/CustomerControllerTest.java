@@ -40,10 +40,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class CustomerControllerTest {
 
     @MockBean
-    ICustomerService customerService;
+    private ICustomerService customerService;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Test
     public void testCreateCustomer() throws Exception {

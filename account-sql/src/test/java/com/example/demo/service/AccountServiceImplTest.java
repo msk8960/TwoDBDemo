@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -27,11 +28,11 @@ import java.util.List;
 public class AccountServiceImplTest {
 
     @MockBean
-    AccountRepo accountRepo;
+    private AccountRepo accountRepo;
 
     @Autowired
     @InjectMocks
-    AccountServiceImpl accountService;
+    private AccountServiceImpl accountService;
 
     @Test
     public void testCreateAccount() throws Exception {
@@ -79,7 +80,7 @@ public class AccountServiceImplTest {
 
     @Test
     public void testGetAllAccounts() throws Exception {
-        Mockito.when(accountRepo.findAll())
+        Mockito.when(accountRepo.findAll(Mockito.any(Sort.class)))
                 .thenReturn(getAccountList());
 
         ResponseEntity<List<AccountDTO>> returnedResponse = accountService.getAllAccounts();
@@ -103,7 +104,7 @@ public class AccountServiceImplTest {
 
     @Test
     public void testGetAllAccountsEmpty() throws Exception {
-        Mockito.when(accountRepo.findAll())
+        Mockito.when(accountRepo.findAll(Mockito.any(Sort.class)))
                 .thenReturn(new ArrayList<Account>());
 
         ResponseEntity<List<AccountDTO>> returnedResponse = accountService.getAllAccounts();
@@ -114,7 +115,7 @@ public class AccountServiceImplTest {
 
     @Test
     public void testGetAccountsById() throws Exception {
-        Mockito.when(accountRepo.findAllByAccountId(45))
+        Mockito.when(accountRepo.findAllByAccountIdOrderByAccountNumberAsc(45))
                 .thenReturn(getAccountsOfOneCustomer());
 
         ResponseEntity<List<AccountDTO>> returnedResponse = accountService.getAccountsById(45);
@@ -140,7 +141,7 @@ public class AccountServiceImplTest {
 
     @Test
     public void testGetAccountsByIdEmpty() throws Exception {
-        Mockito.when(accountRepo.findAllByAccountId(70))
+        Mockito.when(accountRepo.findAllByAccountIdOrderByAccountNumberAsc(70))
                 .thenReturn(getEmptyAccounts());
 
         Assert.assertThrows(AccountNotFoundException.class, () -> {

@@ -20,23 +20,23 @@ import java.util.List;
 public class AccountRepoTest {
 
     @Autowired
-    AccountRepo accountRepo;
+    private AccountRepo accountRepo;
 
     @BeforeEach
-    void initRepo() {
+    private void initRepo() {
         accountRepo.saveAll(createAccounts());
     }
 
     @AfterEach
-    void deleteRepo() {
-        accountRepo.deleteAllByAccountId(50);
-        accountRepo.deleteAllByAccountId(40);
+    private void deleteRepo() {
+        accountRepo.deleteByAccountId(50);
+        accountRepo.deleteByAccountId(40);
         accountRepo.flush();
     }
 
     @Test
-    void testFindAllByAccountId() {
-        List<Account> accounts = accountRepo.findAllByAccountId(50);
+    public void testFindAllByAccountId() {
+        List<Account> accounts = accountRepo.findAllByAccountIdOrderByAccountNumberAsc(50);
 
         Assert.assertEquals(accounts.size(), 2);
         Iterator<Account> accountIterator = accounts.iterator();
@@ -60,8 +60,8 @@ public class AccountRepoTest {
     }
 
     @Test
-    void testFindAllByAccountIdEmpty() {
-        List<Account> accountVal = accountRepo.findAllByAccountId(600);
+    public void testFindAllByAccountIdEmpty() {
+        List<Account> accountVal = accountRepo.findAllByAccountIdOrderByAccountNumberAsc(600);
 
         Assert.assertTrue(accountVal.isEmpty());
     }

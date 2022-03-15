@@ -15,7 +15,7 @@ import java.util.List;
 public class AccountController {
 
     @Autowired
-    IAccountService accountService;
+    private IAccountService accountService;
 
     @PostMapping("/create")
     public ResponseEntity<AccountDTO> createAccount(@Valid @RequestBody AccountDTO accountDTO) {

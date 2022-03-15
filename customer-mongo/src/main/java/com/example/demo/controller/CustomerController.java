@@ -16,7 +16,7 @@ import java.util.List;
 public class CustomerController {
 
     @Autowired
-    ICustomerService customerService;
+    private ICustomerService customerService;
 
     @PostMapping("/create")
     public ResponseEntity<CustomerAccountResponse> createCustomer(@Valid @RequestBody CustomerDTO customerDTO) {

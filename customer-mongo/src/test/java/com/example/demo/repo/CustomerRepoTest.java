@@ -21,16 +21,17 @@ import java.util.Optional;
 public class CustomerRepoTest {
 
     @Autowired
-    CustomerRepo customerRepo;
+    private CustomerRepo customerRepo;
 
     @BeforeEach
-    void initRepo() {
+    private void initRepo() {
         customerRepo.saveAll(createCustomers());
     }
 
     @AfterEach
-    void deleteRepo() {
-        customerRepo.deleteAll();
+    private void deleteRepo() {
+        customerRepo.deleteByCustomerId(40);
+        customerRepo.deleteByCustomerId(50);
     }
 
     @Test

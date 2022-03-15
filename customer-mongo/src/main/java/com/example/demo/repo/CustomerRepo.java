@@ -6,5 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface CustomerRepo extends MongoRepository<Customer, Integer> {
-    Optional<Customer> findByCustomerId(Integer customerId);
+    public Optional<Customer> findByCustomerId(Integer customerId);
+
+    public void deleteByCustomerId(Integer customerId);
 }

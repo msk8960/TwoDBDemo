@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -25,14 +26,14 @@ import java.util.*;
 public class CustomerServiceImplTest {
 
     @MockBean
-    CustomerRepo customerRepo;
+    private CustomerRepo customerRepo;
 
     @MockBean
-    AccountFeign accountFeign;
+    private AccountFeign accountFeign;
 
     @Autowired
     @InjectMocks
-    CustomerServiceImpl customerService;
+    private CustomerServiceImpl customerService;
 
     @Test
     public void testCreateCustomer() throws Exception {
@@ -131,7 +132,7 @@ public class CustomerServiceImplTest {
     @Test
     public void testGetAllCustomers() throws Exception {
         List<Customer> repoCustomers = getDummyCustomers();
-        Mockito.when(customerRepo.findAll()).thenReturn(repoCustomers);
+        Mockito.when(customerRepo.findAll(Mockito.any(Sort.class))).thenReturn(repoCustomers);
 
         ResponseEntity<List<CustomerDTO>> returnedResponse = customerService.getAllCustomers();
 
@@ -165,7 +166,7 @@ public class CustomerServiceImplTest {
     @Test
     public void testGetAllCustomersEmpty() throws Exception {
         List<Customer> emptyCustomers = getEmptyCustomers();
-        Mockito.when(customerRepo.findAll()).thenReturn(emptyCustomers);
+        Mockito.when(customerRepo.findAll(Mockito.any(Sort.class))).thenReturn(emptyCustomers);
 
         ResponseEntity<List<CustomerDTO>> returnedResponse = customerService.getAllCustomers();
 

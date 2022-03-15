@@ -1,5 +1,6 @@
 package com.example.demo.util;
 
+import com.example.demo.model.DAOUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,15 +13,15 @@ import java.util.function.Function;
 @Component
 public class JWTUtility implements Serializable {
 
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60L;
     private static final long serialVersionUID = 234234523523L;
 
     @Value("${jwt.secret}")
     private String secretKey;
 
     //validate token
-    public Boolean validateToken(String token) {
-        return !isTokenExpired(token);
+    public boolean validateToken(String token, DAOUser user) {
+        return !isTokenExpired(token) && !user.getRoles().isEmpty();
     }
 
     //retrieve username from jwt token

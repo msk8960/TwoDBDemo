@@ -17,7 +17,7 @@ import java.util.function.Function;
 public class JWTUtility implements Serializable {
 
 
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60L;
     private static final long serialVersionUID = 234234523523L;
     @Value("${jwt.secret}")
     private String secretKey;
@@ -70,7 +70,7 @@ public class JWTUtility implements Serializable {
 
 
     //validate token
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }

@@ -2,6 +2,7 @@ package com.example.jwt.demo.filter;
 
 import com.example.jwt.demo.service.UserService;
 import com.example.jwt.demo.util.JWTUtility;
+import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,15 +21,15 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     @Autowired
-    JWTUtility jwtUtility;
+    private JWTUtility jwtUtility;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        final String authorizationHeader = request.getHeader("Authorization");
+        final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         String username = null;
         String jwt = null;

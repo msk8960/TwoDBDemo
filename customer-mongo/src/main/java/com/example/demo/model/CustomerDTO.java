@@ -13,17 +13,17 @@ import java.util.Date;
 public class CustomerDTO {
 
     @NotNull(message = "customer id cannot be null")
-    Integer customerId;
+    private Integer customerId;
 
     @NotBlank(message = "customer name cannot be empty")
-    String customerName;
+    private String customerName;
 
-    Date creationDate;
+    private Date creationDate;
 
     @NotNull(message = "customer type cannot be null")
-    CustomerType customerType;
+    private CustomerType customerType;
 
-    boolean isActive;
+    private boolean isActive;
 
     public CustomerDTO(Customer customer) {
         this.customerId = customer.getCustomerId();

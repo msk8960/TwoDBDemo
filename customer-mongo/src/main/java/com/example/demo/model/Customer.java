@@ -14,11 +14,11 @@ import java.util.Date;
 public class Customer {
 
     @Id
-    Integer customerId;
-    String customerName;
-    Date creationDate;
-    CustomerType customerType;
-    boolean isActive;
+    private Integer customerId;
+    private String customerName;
+    private Date creationDate;
+    private CustomerType customerType;
+    private boolean isActive;
 
     public Customer(CustomerDTO customerDTO) {
         this.customerId = customerDTO.getCustomerId();
